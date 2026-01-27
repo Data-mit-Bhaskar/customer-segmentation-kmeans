@@ -1,0 +1,157 @@
+#Data Collection and Preperation
+
+import pandas as pd
+
+#load the data
+file_path = 'Copy of online_retail_II.xlsx'
+data = pd.read_excel(file_path)
+
+#Display the head of the DataFrame
+data.head()
+
+#Describe the dataset to get an overview of the numerical columns
+print('Descriptive statistics for numerical columns:')
+data.describe(include='all')
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Data Cleaning
+
+#Check for missing values in the dataset
+missing_values = data.isnull().sum()
+print('Missing values in each column:')
+print(data.dtypes)
+
+#Remove duplicate rows
+data.drop_duplicates(inplace=True)
+
+#Remove rows with missing 'Description'
+data.dropna(subset=['Description'], inplace=True)
+
+#Convert 'InvoiceDate' to datetime format
+data['InvoiceDate'] = pd.to_datetime(data['InvoiceDate'])
+
+#Convert 'Customer ID' to a categorical variable
+data['Customer ID'] = data['Customer ID'].astype('category')
+
+#Display the head of the cleaned DataFrame to confirm changes
+print('Head of the cleaned DataFrame:')
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Exploratory Dara Analysis
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Setting up the Visualizations
+sns.set(style='whitegrid')
+
+#Sales trends over time (monthly)
+monthly_sales = df_cleaned.groupby(['Year', 'Month'])['Quantity'],sum().reset_index()
+
+#Plotting monthly sales trends
+plt.figure(figsize=(14,7)
+sns.lineplot(data=monthly_sales, x='Month', y='Quantity', hue='Year', marker='o')
+plt.title('Monthly Sales Trends')
+plt.xlabel('Month')
+plt.ylabel('Quantity Sold')
+plt.legend(title='Year')
+plt.xticks(range(1,13))
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+#Most Popular Products
+popular_products = df_cleaned['Description'].value_counts().head(10).reset_index()
+popular_products.columns = ['Description', Frequency]
+
+#Plotting most popular products
+plt.figure(figsize=(14,7))
+sns.barplot(data=popular_products, x='Frequency', y='Description', palette='virdis')
+plt.title('Top 10 Most Popular Products')
+plt.xlabel('Frequency')
+plt.ylabel('Product Description')
+plt.tight_layout()
+plt.show()
+
+#Customer Buying Patterns
+#For simplicity we will look at the top 10 customers by quantity
+top_customers = df_cleaned.groupby('Customer ID')['Quantity'].sum().sort_values(ascending=False).head(10).rest_index()
+
+#Plotting top customers buying patterns
+plt.figure(figsize=914,7))
+sns.barplot(data=top_customers, x='Customer ID', y='Quantity', palette='mako')
+plt.title('Top 10 Customers by Quantity Purchased')
+plt.xlabel('Customer ID')
+plt.ylabel('Quantity Purchased')
+plt.tight_layout()
+plt.show()
+
+#Checking for anomalies or outliers in 'Quantity' and 'Price'
+plt.figure(figsize=(14,7))
+sns.boxplot(data=df_cleaned, x='Year', y='Quantity')
+plt.yscale('symlog')
+plt.title('Quantity Distribution by Year')
+plt.xlabel('Year')
+plt.ylabel('Quantity(log scale)')
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(14,7))
+sns.boxplot(data=df_cleaned, x='Year', y='price')
+plt.yscale('symlog')
+plt.title('Price Distribution by Year')
+plt.xlabel('Year')
+plt.ylabel('Price(log scale)')
+plt.tight_layout()
+plt.show()
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Feature Engineering
+#Calculate total Price
+data['TotalPrice'] = data['Quantity']*data['Price']
+#Aggregate data by customer ID
+cutomer_data = data.groupby('Customer ID').agg({'Invoice':'nunique', 'Quantity':'sum','TotalPrice':'sum'}).reset_index{}
+
+#Standardize the Features
+scaler = Standardscaler()
+customer_data_scaled = scaler.fit_transform(customer_data[['NumberofInvoices', 'TotalQuantity', 'TotalSpent']])
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#KMeans Clustering
+#Determine the optimal number of clusters using the silhouette score
+silhouette_scores = []
+for k in tqdm(range(2,11)):
+    kmeans = Kmeans(n_clusters=k, random_state=42)
+    kmeans.fit(customer_data_scaled)
+    score = silhouette_score(customer_data_scaled, kmeans.labels_)
+    silhouette_scores.append(score)
+
+#Plot the silhouette scores
+plt.figure(figsize=(10, 6))
+plt,plot(range(2, 11), silhoutte_scores, marker='o')
+plt.title('Silhouette Score vs. Number of Clusters')
+plt.xlabel('Number of Clusters')
+plt.ylabel('Silhouette Score')
+plt.show()
+
+#Select the number of clusters with the highest silhouette score
+optimal_clusters = silhouette_scores.index(max(silhouette_scores)) + 2
+print('Optimal number of clusters:', optimal_clusters)
+
+#Apply KMeans with optimal number of clusters
+kmeans = KMeans(n_clusters=optimal_clusters, random_stated=42)
+customer_clusters = kmeans.fit_predict(customer_data_scaled)
+
+#Add the cluster labels to the customer data
+customer_data['Cluster'] = customer_clusters
+
+#Save the clustered data to a new file
+customer_data.to_csv('customer_segmentation.csv', index=False)
+print('Customer segmentation completed and saved to customer_segmentation.csv')
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+                                                     
